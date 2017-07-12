@@ -7,6 +7,7 @@ package filemanager;
 
 import java.awt.*;
 import java.io.File;
+import java.util.Date;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -25,6 +26,19 @@ public class FileManager {
     private Desktop desktop;
     private JTable table;
     private ListSelectionListener listSelectionListener;
+    private static final String TITLE = "FILE MANAGER";
+    //currently selected file
+    private File currentFile;
+    //all the variables of file details
+    private JLabel fileName;
+    private JTextField path;
+    private JLabel date;
+    private JLabel size;
+    private JCheckBox readable;
+    private JCheckBox writable;
+    private JCheckBox executable;
+    private JRadioButton isDirectory;
+    private JRadioButton isFile;
     
     public Container getGui()
     {
@@ -53,10 +67,28 @@ public class FileManager {
         }
          return gui;
     }
-    //function to set details of the selected file(unimplemented right now)
-   private void setFileDetails(File currentFile) {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                }
+    //function to set details of the selected file
+   private void setFileDetails(File file) {
+      currentFile = file;
+      //set all the details of the selected file on corresonding labels and chceckboxes
+       fileName.setIcon(fsv.getSystemIcon(file));
+       fileName.setText(fsv.getSystemDisplayName(file));
+       path.setText(file.getPath());
+       date.setText(new Date(file.lastModified()).toString());
+       size.setText(String.valueOf(file.length())+" bytes");
+       readable.setSelected(file.canRead());
+       writable.setSelected(file.canWrite());
+       executable.setSelected(file.canExecute());
+       isDirectory.setSelected(file.isDirectory());
+       isFile.setSelected(file.isFile());
+       //TopLevelAncestor returns the container which contains the JPanel
+       JFrame f= (JFrame)gui.getTopLevelAncestor();
+       if(f!=null)
+           f.setTitle(TITLE+" : "+ fsv.getSystemDisplayName(file));
+          
+       gui.repaint();
+       
+       }
    
    
     public static void main(String[] args) {
@@ -68,7 +100,7 @@ public class FileManager {
                 {
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                 }catch(Exception e){}
-            JFrame frame = new JFrame("File Manager");
+            JFrame frame = new JFrame(TITLE);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             FileManager fm = new FileManager();
             frame.setContentPane(fm.getGui());
